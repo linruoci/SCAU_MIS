@@ -1,10 +1,8 @@
 package com.ruoci.mis.controller;
 
-import cn.hutool.core.util.ObjectUtil;
 import com.ruoci.mis.common.Result;
-import com.ruoci.mis.common.enums.ResultCodeEnum;
-import com.ruoci.mis.entity.User;
-import com.ruoci.mis.service.UserService;
+import com.ruoci.mis.entity.Notice;
+import com.ruoci.mis.service.NoticeService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,25 +10,21 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 用户表前端操作接口
+ * 公告信息表前端操作接口
  **/
 @RestController
-@RequestMapping("/user")
-public class UserController {
+@RequestMapping("/notice")
+public class NoticeController {
 
     @Resource
-    private UserService userService;
+    private NoticeService noticeService;
 
     /**
      * 新增
      */
     @PostMapping("/add")
-    public Result add(@RequestBody User user) {
-        // 数据校验
-        if (ObjectUtil.isEmpty(user.getUsername()) || ObjectUtil.isEmpty(user.getPassword())) {
-            return Result.error(ResultCodeEnum.PARAM_LOST_ERROR);
-        }
-        userService.add(user);
+    public Result add(@RequestBody Notice notice) {
+        noticeService.add(notice);
         return Result.success();
     }
 
@@ -39,7 +33,7 @@ public class UserController {
      */
     @DeleteMapping("/delete/{id}")
     public Result deleteById(@PathVariable Integer id) {
-        userService.deleteById(id);
+        noticeService.deleteById(id);
         return Result.success();
     }
 
@@ -48,7 +42,7 @@ public class UserController {
      */
     @DeleteMapping("/delete/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {
-        userService.deleteBatch(ids);
+        noticeService.deleteBatch(ids);
         return Result.success();
     }
 
@@ -56,8 +50,8 @@ public class UserController {
      * 修改
      */
     @PutMapping("/update")
-    public Result updateById(@RequestBody User user) {
-        userService.updateById(user);
+    public Result updateById(@RequestBody Notice notice) {
+        noticeService.updateById(notice);
         return Result.success();
     }
 
@@ -66,16 +60,16 @@ public class UserController {
      */
     @GetMapping("/selectById/{id}")
     public Result selectById(@PathVariable Integer id) {
-        User user = userService.selectById(id);
-        return Result.success(user);
+        Notice notice = noticeService.selectById(id);
+        return Result.success(notice);
     }
 
     /**
      * 查询所有
      */
     @GetMapping("/selectAll")
-    public Result selectAll(User user ) {
-        List<User> list = userService.selectAll(user);
+    public Result selectAll(Notice notice ) {
+        List<Notice> list = noticeService.selectAll(notice);
         return Result.success(list);
     }
 
@@ -83,10 +77,10 @@ public class UserController {
      * 分页查询
      */
     @GetMapping("/selectPage")
-    public Result selectPage(User user,
+    public Result selectPage(Notice notice,
                              @RequestParam(defaultValue = "1") Integer pageNum,
                              @RequestParam(defaultValue = "10") Integer pageSize) {
-        PageInfo<User> page = userService.selectPage(user, pageNum, pageSize);
+        PageInfo<Notice> page = noticeService.selectPage(notice, pageNum, pageSize);
         return Result.success(page);
     }
 

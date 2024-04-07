@@ -1,107 +1,96 @@
 package com.ruoci.mis.controller;
 
 import cn.hutool.core.io.FileUtil;
-import com.ruoci.mis.common.BaseResponse;
-import com.ruoci.mis.common.ErrorCode;
-import com.ruoci.mis.common.ResultUtils;
-import com.ruoci.mis.constant.FileConstant;
-import com.ruoci.mis.exception.BusinessException;
-import com.ruoci.mis.manager.CosManager;
-import com.ruoci.mis.model.dto.file.UploadFileRequest;
-import com.ruoci.mis.model.entity.User;
-import com.ruoci.mis.model.enums.FileUploadBizEnum;
-import com.ruoci.mis.service.UserService;
-import java.io.File;
-import java.util.Arrays;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import cn.hutool.core.thread.ThreadUtil;
+import cn.hutool.core.util.StrUtil;
+import com.ruoci.mis.common.Result;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.List;
 
 /**
  * 文件接口
- *
-@author ruoci
  */
 @RestController
-@RequestMapping("/file")
-@Slf4j
+@RequestMapping("/files")
 public class FileController {
 
-    @Resource
-    private UserService userService;
+    // 文件上传存储路径
+    private static final String filePath = System.getProperty("user.dir") + "/files/";
 
-    @Resource
-    private CosManager cosManager;
+    @Value("${server.port:9090}")
+    private String port;
+
+    @Value("${ip:localhost}")
+    private String ip;
 
     /**
      * 文件上传
-     *
-     * @param multipartFile
-     * @param uploadFileRequest
-     * @param request
-     * @return
      */
     @PostMapping("/upload")
-    public BaseResponse<String> uploadFile(@RequestPart("file") MultipartFile multipartFile,
-            UploadFileRequest uploadFileRequest, HttpServletRequest request) {
-        String biz = uploadFileRequest.getBiz();
-        FileUploadBizEnum fileUploadBizEnum = FileUploadBizEnum.getEnumByValue(biz);
-        if (fileUploadBizEnum == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+    public Result upload(MultipartFile file) {
+        String flag;
+        synchronized (FileController.class) {
+            flag = System.currentTimeMillis() + "";
+            ThreadUtil.sleep(1L);
         }
-        validFile(multipartFile, fileUploadBizEnum);
-        User loginUser = userService.getLoginUser(request);
-        // 文件目录：根据业务、用户来划分
-        String uuid = RandomStringUtils.randomAlphanumeric(8);
-        String filename = uuid + "-" + multipartFile.getOriginalFilename();
-        String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
-        File file = null;
+        String fileName = file.getOriginalFilename();
         try {
-            // 上传文件
-            file = File.createTempFile(filepath, null);
-            multipartFile.transferTo(file);
-            cosManager.putObject(filepath, file);
-            // 返回可访问地址
-            return ResultUtils.success(FileConstant.COS_HOST + filepath);
-        } catch (Exception e) {
-            log.error("file upload error, filepath = " + filepath, e);
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
-        } finally {
-            if (file != null) {
-                // 删除临时文件
-                boolean delete = file.delete();
-                if (!delete) {
-                    log.error("file delete error, filepath = {}", filepath);
-                }
+            if (!FileUtil.isDirectory(filePath)) {
+                FileUtil.mkdir(filePath);
             }
+            // 文件存储形式：时间戳-文件名
+            FileUtil.writeBytes(file.getBytes(), filePath + flag + "-" + fileName);  // ***/manager/files/1697438073596-avatar.png
+            System.out.println(fileName + "--上传成功");
+
+        } catch (Exception e) {
+            System.err.println(fileName + "--文件上传失败");
+        }
+        String http = "http://" + ip + ":" + port + "/files/";
+        return Result.success(http + flag + "-" + fileName);  //  http://localhost:9090/files/1697438073596-avatar.png
+    }
+
+
+    /**
+     * 获取文件
+     *
+     * @param flag
+     * @param response
+     */
+    @GetMapping("/{flag}")   //  1697438073596-avatar.png
+    public void avatarPath(@PathVariable String flag, HttpServletResponse response) {
+        OutputStream os;
+        try {
+            if (StrUtil.isNotEmpty(flag)) {
+                response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(flag, "UTF-8"));
+                response.setContentType("application/octet-stream");
+                byte[] bytes = FileUtil.readBytes(filePath + flag);
+                os = response.getOutputStream();
+                os.write(bytes);
+                os.flush();
+                os.close();
+            }
+        } catch (Exception e) {
+            System.out.println("文件下载失败");
         }
     }
 
     /**
-     * 校验文件
+     * 删除文件
      *
-     * @param multipartFile
-     * @param fileUploadBizEnum 业务类型
+     * @param flag
      */
-    private void validFile(MultipartFile multipartFile, FileUploadBizEnum fileUploadBizEnum) {
-        // 文件大小
-        long fileSize = multipartFile.getSize();
-        // 文件后缀
-        String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        final long ONE_M = 1024 * 1024L;
-        if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
-            if (fileSize > ONE_M) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 1M");
-            }
-            if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
-            }
-        }
+    @DeleteMapping("/{flag}")
+    public void delFile(@PathVariable String flag) {
+        List<String> fileNames = FileUtil.listFileNames(filePath);
+        FileUtil.del(filePath + flag);
+        System.out.println("删除文件" + flag + "成功");
     }
+
+
 }
