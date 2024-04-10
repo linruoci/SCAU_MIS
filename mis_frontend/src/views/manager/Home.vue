@@ -22,6 +22,8 @@
         </div>
       </div>
     </div>
+
+
   </div>
 </template>
 
@@ -32,13 +34,14 @@ export default {
   data() {
     return {
       user: JSON.parse(localStorage.getItem('xm-user') || '{}'),
-      notices: []
+      notices: [],
+      tables:[]
     }
   },
   created() {
     this.$request.get('/notice/selectAll').then(res => {
       this.notices = res.data || []
-    })
+    });
   }
 }
 </script>

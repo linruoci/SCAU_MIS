@@ -45,10 +45,12 @@
             <el-menu-item index="/category">商品分类信息</el-menu-item>
             <el-menu-item index="/goods">商品信息</el-menu-item>
             <el-menu-item index="/orders">订单管理信息</el-menu-item>
-            <el-menu-item index="/collect">店铺收藏信息</el-menu-item>
-            <el-menu-item index="/comment">店铺评论信息</el-menu-item>
-            <el-menu-item index="/banner" v-if="user.role === 'ADMIN'">广告信息</el-menu-item>
-            <el-menu-item index="/notice" v-if="user.role === 'ADMIN'">公告信息</el-menu-item>
+            <el-menu-item index="/tables">餐桌管理</el-menu-item>
+            <el-menu-item index="/tablesManager">餐桌状态</el-menu-item>
+<!--            <el-menu-item index="/collect">店铺收藏信息</el-menu-item>-->
+<!--            <el-menu-item index="/comment">店铺评论信息</el-menu-item>-->
+<!--            <el-menu-item index="/banner" v-if="user.role === 'ADMIN'">广告信息</el-menu-item>-->
+<!--            <el-menu-item index="/notice" v-if="user.role === 'ADMIN'">公告信息</el-menu-item>-->
           </el-submenu>
 
           <el-submenu index="user" v-if="user.role === 'ADMIN'">
@@ -56,7 +58,7 @@
               <i class="el-icon-menu"></i><span>用户管理</span>
             </template>
             <el-menu-item index="/admin">管理员信息</el-menu-item>
-            <el-menu-item index="/business">商家信息</el-menu-item>
+            <el-menu-item index="/waiter">服务员信息</el-menu-item>
             <el-menu-item index="/user">用户信息</el-menu-item>
           </el-submenu>
         </el-menu>
@@ -91,8 +93,8 @@ export default {
     goToPerson() {
       if (this.user.role === 'ADMIN') {
         this.$router.push('/adminPerson')
-      } else if (this.user.role === 'BUSINESS') {
-        this.$router.push('/businessPerson')
+      } else if (this.user.role === 'WAITER') {
+        this.$router.push('/waiter')
       }
     },
     logout() {

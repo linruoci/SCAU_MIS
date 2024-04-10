@@ -22,7 +22,7 @@ const routes = [
       { path: 'adminPerson', name: 'AdminPerson', meta: { name: '个人信息' }, component: () => import('../views/manager/AdminPerson') },
       { path: 'password', name: 'Password', meta: { name: '修改密码' }, component: () => import('../views/manager/Password') },
       { path: 'notice', name: 'Notice', meta: { name: '公告信息' }, component: () => import('../views/manager/Notice') },
-      { path: 'business', name: 'Business', meta: { name: '商家信息' }, component: () => import('../views/manager/Business') },
+      { path: 'waiter', name: 'Waiter', meta: { name: '服务员信息' }, component: () => import('../views/manager/Waiter') },
       { path: 'user', name: 'User', meta: { name: '用户信息' }, component: () => import('../views/manager/User') },
       { path: 'businessPerson', name: 'BusinessPerson', meta: { name: '商家个人信息' }, component: () => import('../views/manager/BusinessPerson') },
       { path: 'category', name: 'Category', meta: { name: '商品分类信息' }, component: () => import('../views/manager/Category') },
@@ -31,6 +31,9 @@ const routes = [
       { path: 'orders', name: 'Orders', meta: { name: '订单信息' }, component: () => import('../views/manager/Orders') },
       { path: 'collect', name: 'Collect', meta: { name: '收藏信息' }, component: () => import('../views/manager/Collect') },
       { path: 'comment', name: 'Comment', meta: { name: '商家评论信息' }, component: () => import('../views/manager/Comment') },
+      { path: 'tables', name: 'Tables', meta: { name: '商家评论信息' }, component: () => import('../views/manager/Tables') },
+      { path: 'order', name: 'Order', meta: { name: '点餐信息' }, component: () => import('../views/manager/Order') },
+      { path: 'tablesManager', name: 'TablesManager', meta: { name: '点餐状态' }, component: () => import('../views/manager/TablesManager') },
     ]
   },
   { path: '/login', name: 'Login', meta: { name: '登录' }, component: () => import('../views/Login.vue') },
