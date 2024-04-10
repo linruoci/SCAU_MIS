@@ -47,6 +47,7 @@
             <el-menu-item index="/orders">订单管理信息</el-menu-item>
             <el-menu-item index="/tables">餐桌管理</el-menu-item>
             <el-menu-item index="/tablesManager">餐桌状态</el-menu-item>
+            <el-menu-item index="/Order">点餐信息</el-menu-item>
 <!--            <el-menu-item index="/collect">店铺收藏信息</el-menu-item>-->
 <!--            <el-menu-item index="/comment">店铺评论信息</el-menu-item>-->
 <!--            <el-menu-item index="/banner" v-if="user.role === 'ADMIN'">广告信息</el-menu-item>-->
