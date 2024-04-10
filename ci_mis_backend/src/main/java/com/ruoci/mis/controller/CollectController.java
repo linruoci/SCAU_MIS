@@ -1,9 +1,8 @@
 package com.ruoci.mis.controller;
 
 import com.ruoci.mis.common.Result;
-import com.ruoci.mis.entity.Goods;
-import com.ruoci.mis.entity.GoodsDTO;
-import com.ruoci.mis.service.GoodsService;
+import com.ruoci.mis.entity.Collect;
+import com.ruoci.mis.service.CollectService;
 import com.github.pagehelper.PageInfo;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,21 +10,27 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 商品信息前端操作接口
+ * 前端操作接口
  **/
 @RestController
-@RequestMapping("/goods")
-public class GoodsController {
+@RequestMapping("/collect")
+public class CollectController {
 
     @Resource
-    private GoodsService goodsService;
+    private CollectService collectService;
 
     /**
      * 新增
      */
     @PostMapping("/add")
-    public Result add(@RequestBody Goods goods) {
-        goodsService.add(goods);
+    public Result add(@RequestBody Collect collect) {
+        collectService.add(collect);
+        return Result.success();
+    }
+
+    @PostMapping("/saveCollect")
+    public Result saveCollect(@RequestBody Collect collect) {
+        collectService.saveCollect(collect);
         return Result.success();
     }
 
@@ -34,7 +39,7 @@ public class GoodsController {
      */
     @DeleteMapping("/delete/{id}")
     public Result deleteById(@PathVariable Integer id) {
-        goodsService.deleteById(id);
+        collectService.deleteById(id);
         return Result.success();
     }
 
@@ -43,7 +48,7 @@ public class GoodsController {
      */
     @DeleteMapping("/delete/batch")
     public Result deleteBatch(@RequestBody List<Integer> ids) {
-        goodsService.deleteBatch(ids);
+        collectService.deleteBatch(ids);
         return Result.success();
     }
 
@@ -51,8 +56,8 @@ public class GoodsController {
      * 修改
      */
     @PutMapping("/update")
-    public Result updateById(@RequestBody Goods goods) {
-        goodsService.updateById(goods);
+    public Result updateById(@RequestBody Collect collect) {
+        collectService.updateById(collect);
         return Result.success();
     }
 
@@ -61,37 +66,27 @@ public class GoodsController {
      */
     @GetMapping("/selectById/{id}")
     public Result selectById(@PathVariable Integer id) {
-        Goods goods = goodsService.selectById(id);
-        return Result.success(goods);
+        Collect collect = collectService.selectById(id);
+        return Result.success(collect);
     }
 
     /**
      * 查询所有
      */
     @GetMapping("/selectAll")
-    public Result selectAll(Goods goods ) {
-        List<Goods> list = goodsService.selectAll(goods);
+    public Result selectAll(Collect collect ) {
+        List<Collect> list = collectService.selectAll(collect);
         return Result.success(list);
     }
 
-
-    @GetMapping("/selectAllExceptStatus")
-    public Result selectPageExceptStatus(GoodsDTO goodsDTO,
-                                         @RequestParam(defaultValue = "1") Integer pageNum,
-                                         @RequestParam(defaultValue = "10") Integer pageSize) {
-        PageInfo<GoodsDTO> page = goodsService.selectAllExceptStatus(goodsDTO, pageNum, pageSize);
-        return Result.success(page);
-    }
-
-
-    /** a
+    /**
      * 分页查询
      */
     @GetMapping("/selectPage")
-    public Result selectPage(Goods goods,
+    public Result selectPage(Collect collect,
                              @RequestParam(defaultValue = "1") Integer pageNum,
                              @RequestParam(defaultValue = "10") Integer pageSize) {
-        PageInfo<Goods> page = goodsService.selectPage(goods, pageNum, pageSize);
+        PageInfo<Collect> page = collectService.selectPage(collect, pageNum, pageSize);
         return Result.success(page);
     }
 

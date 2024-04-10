@@ -10,6 +10,7 @@ import com.ruoci.mis.entity.Account;
 import com.ruoci.mis.service.AdminService;
 import com.ruoci.mis.service.BusinessService;
 import com.ruoci.mis.service.UserService;
+import com.ruoci.mis.service.WaiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -30,14 +31,14 @@ public class TokenUtils {
     private static final Logger log = LoggerFactory.getLogger(TokenUtils.class);
 
     private static AdminService staticAdminService;
-    private static BusinessService staticBusinessService;
+    private static WaiterService staticWaiterService;
     private static UserService staticUserService;
 
     @Resource
     AdminService adminService;
 
     @Resource
-    BusinessService businessService;
+    WaiterService waiterService;
 
     @Resource
     UserService userService;
@@ -45,7 +46,7 @@ public class TokenUtils {
     @PostConstruct
     public void setUserService() {
         staticAdminService = adminService;
-        staticBusinessService = businessService;
+        staticWaiterService = waiterService;
         staticUserService = userService;
     }
 
@@ -71,8 +72,8 @@ public class TokenUtils {
                 String role = userRole.split("-")[1];    // 获取角色
                 if (RoleEnum.ADMIN.name().equals(role)) {
                     return staticAdminService.selectById(Integer.valueOf(userId));
-                } else if (RoleEnum.BUSINESS.name().equals(role)) {
-                    return staticBusinessService.selectBasicBusinessById(Integer.valueOf(userId));
+                } else if (RoleEnum.WAITER.name().equals(role)) {
+                    return staticWaiterService.selectById(Integer.valueOf(userId));
                 } else if (RoleEnum.USER.name().equals(role)) {
                     return staticUserService.selectById(Integer.valueOf(userId));
                 }

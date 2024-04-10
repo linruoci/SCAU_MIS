@@ -47,6 +47,16 @@ public class Orders implements Serializable {
     private String businessName;
     /** 消费者名称 */
     private String userName;
+    private String orderType;
+
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
 
     public Integer getId() {
         return id;

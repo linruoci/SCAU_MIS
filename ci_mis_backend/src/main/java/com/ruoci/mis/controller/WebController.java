@@ -9,6 +9,7 @@ import com.ruoci.mis.entity.Account;
 import com.ruoci.mis.service.AdminService;
 import com.ruoci.mis.service.BusinessService;
 import com.ruoci.mis.service.UserService;
+import com.ruoci.mis.service.WaiterService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,7 +24,7 @@ public class WebController {
     private AdminService adminService;
 
     @Resource
-    private BusinessService businessService;
+    private WaiterService waiterService;
 
     @Resource
     private UserService userService;
@@ -44,8 +45,8 @@ public class WebController {
         }
         if (RoleEnum.ADMIN.name().equals(account.getRole())) {
             account = adminService.login(account);
-        } else if (RoleEnum.BUSINESS.name().equals(account.getRole())) {
-            account = businessService.login(account);
+        } else if (RoleEnum.WAITER.name().equals(account.getRole())) {
+            account = waiterService.login(account);
         } else if (RoleEnum.USER.name().equals(account.getRole())) {
             account = userService.login(account);
         }
@@ -61,9 +62,7 @@ public class WebController {
                 || ObjectUtil.isEmpty(account.getRole())) {
             return Result.error(ResultCodeEnum.PARAM_LOST_ERROR);
         }
-        if (RoleEnum.BUSINESS.name().equals(account.getRole())) {
-            businessService.register(account);
-        } else  if (RoleEnum.USER.name().equals(account.getRole())) {
+        if (RoleEnum.USER.name().equals(account.getRole())) {
             userService.register(account);
         }
         return Result.success();
@@ -80,8 +79,8 @@ public class WebController {
         }
         if (RoleEnum.ADMIN.name().equals(account.getRole())) {
             adminService.updatePassword(account);
-        } else if (RoleEnum.BUSINESS.name().equals(account.getRole())) {
-            businessService.updatePassword(account);
+        } else if (RoleEnum.WAITER.name().equals(account.getRole())) {
+            waiterService.updatePassword(account);
         }
         return Result.success();
     }

@@ -13,6 +13,7 @@ import com.ruoci.mis.exception.CustomException;
 import com.ruoci.mis.service.AdminService;
 import com.ruoci.mis.service.BusinessService;
 import com.ruoci.mis.service.UserService;
+import com.ruoci.mis.service.WaiterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class JwtInterceptor implements HandlerInterceptor {
     private AdminService adminService;
 
     @Resource
-    private BusinessService businessService;
+    private WaiterService waiterService;
 
     @Resource
     private UserService userService;
@@ -60,8 +61,8 @@ public class JwtInterceptor implements HandlerInterceptor {
             // 根据userId查询数据库
             if (RoleEnum.ADMIN.name().equals(role)) {
                 account = adminService.selectById(Integer.valueOf(userId));
-            } else if (RoleEnum.BUSINESS.name().equals(role)) {
-                account = businessService.selectById(Integer.valueOf(userId));
+            } else if (RoleEnum.WAITER.name().equals(role)) {
+                account = waiterService.selectById(Integer.valueOf(userId));
             } else if (RoleEnum.USER.name().equals(role)) {
                 account = userService.selectById(Integer.valueOf(userId));
             }

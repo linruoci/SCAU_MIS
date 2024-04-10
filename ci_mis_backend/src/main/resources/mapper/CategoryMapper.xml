@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoci.mis.mapper.CategoryMapper">
+
+    <sql id="Base_Column_List">
+        id,name,business_id
+    </sql>
+
+    <select id="selectAll" resultType="com.ruoci.mis.entity.Category">
+        select category.*
+        from category
+        <where>
+            <if test="id != null"> and category.id = #{id}</if>
+            <if test="name != null"> and category.name like concat('%', #{name}, '%')</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectById" resultType="com.ruoci.mis.entity.Category">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        delete from category
+        where  id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoci.mis.entity.Category" useGeneratedKeys="true">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="businessId != null">business_id,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.ruoci.mis.entity.Admin">
+        update category
+        <set>
+            <if test="name != null">
+                name = #{name},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

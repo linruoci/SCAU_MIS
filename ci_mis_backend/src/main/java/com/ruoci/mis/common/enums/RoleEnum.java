@@ -3,8 +3,8 @@ package com.ruoci.mis.common.enums;
 public enum RoleEnum {
     // 管理员
     ADMIN,
-    // 商家
-    BUSINESS,
+    // 服务员
+    WAITER,
     // 用户
     USER
 }

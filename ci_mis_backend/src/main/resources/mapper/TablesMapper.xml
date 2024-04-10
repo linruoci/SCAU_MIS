@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoci.mis.mapper.TablesMapper">
+
+    <sql id="Base_Column_List">
+        id, no, unit, free
+    </sql>
+
+    <select id="selectAll" resultType="com.ruoci.mis.entity.Tables">
+        select
+        <include refid="Base_Column_List" />
+        from tables
+        <where>
+            <if test="id != null"> and id= #{id}</if>
+            <if test="no != null"> and no like concat('%', #{no}, '%')</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="selectById" resultType="com.ruoci.mis.entity.Tables">
+        select
+        <include refid="Base_Column_List" />
+        from tables
+        where id = #{id}
+    </select>
+
+    <delete id="deleteById">
+        delete from tables
+        where  id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="com.ruoci.mis.entity.Tables" useGeneratedKeys="true">
+        insert into tables
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="no != null">no,</if>
+            <if test="unit != null">unit,</if>
+            <if test="free != null">free,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="no != null">#{no},</if>
+            <if test="unit != null">#{unit},</if>
+            <if test="free != null">#{free},</if>
+        </trim>
+    </insert>
+
+    <update id="updateById" parameterType="com.ruoci.mis.entity.Admin">
+        update tables
+        <set>
+            <if test="no != null">
+                no = #{no},
+            </if>
+            <if test="unit != null">
+                unit = #{unit},
+            </if>
+            <if test="free != null">
+                free = #{free},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+</mapper>

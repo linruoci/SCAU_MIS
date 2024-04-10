@@ -1,6 +1,7 @@
 package com.ruoci.mis.mapper;
 
 import com.ruoci.mis.entity.Goods;
+import com.ruoci.mis.entity.GoodsDTO;
 
 import java.util.List;
 
@@ -34,4 +35,5 @@ public interface GoodsMapper {
      */
     List<Goods> selectAll(Goods goods);
 
+    List<GoodsDTO> selectAllExceptStatus(GoodsDTO goodsDTO);
 }

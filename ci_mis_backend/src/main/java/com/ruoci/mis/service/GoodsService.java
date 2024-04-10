@@ -26,9 +26,6 @@ public class GoodsService {
     private GoodsMapper goodsMapper;
 
     @Resource
-    private BusinessService businessService;
-
-    @Resource
     private CategoryService categoryService;
 
     @Resource
@@ -41,9 +38,6 @@ public class GoodsService {
      * 新增
      */
     public void add(Goods goods) {
-        // 校验权限
-        businessService.checkBusinessAuth();
-
         //查询分类的数据
         Category category = categoryService.selectById(goods.getCategoryId());
         if (ObjectUtil.isNotEmpty(category)) {
@@ -57,7 +51,6 @@ public class GoodsService {
      */
     public void deleteById(Integer id) {
         // 校验权限
-        businessService.checkBusinessAuth();
         goodsMapper.deleteById(id);
     }
 
@@ -66,7 +59,6 @@ public class GoodsService {
      */
     public void deleteBatch(List<Integer> ids) {
         // 校验权限
-        businessService.checkBusinessAuth();
         for (Integer id : ids) {
             goodsMapper.deleteById(id);
         }
@@ -77,7 +69,6 @@ public class GoodsService {
      */
     public void updateById(Goods goods) {
         // 校验权限
-        businessService.checkBusinessAuth();
         goodsMapper.updateById(goods);
     }
 
@@ -97,8 +88,8 @@ public class GoodsService {
         // 拿到当前的登录用户信息
         Account currentUser = TokenUtils.getCurrentUser();
         String role = currentUser.getRole();
-        if (RoleEnum.BUSINESS.name().equals(role)) {  // 如果是商家的话   只能查询自己的数据
-            goods.setBusinessId(currentUser.getId());  // 设置商家自己的Id作为查询条件
+        if (!RoleEnum.ADMIN.name().equals(role)) {  // 如果是商家的话   只能查询自己的分类
+            throw new RuntimeException("无访问权限!");
         }
         List<Goods> goodsList = goodsMapper.selectAll(goods);
         for (Goods g : goodsList) {
@@ -114,8 +105,8 @@ public class GoodsService {
         // 拿到当前的登录用户信息
         Account currentUser = TokenUtils.getCurrentUser();
         String role = currentUser.getRole();
-        if (RoleEnum.BUSINESS.name().equals(role)) {  // 如果是商家的话   只能查询自己的数据
-            goods.setBusinessId(currentUser.getId());  // 设置商家自己的Id作为查询条件
+        if (!RoleEnum.ADMIN.name().equals(role)) {  // 如果是商家的话   只能查询自己的分类
+            throw new RuntimeException("无访问权限!");
         }
         PageHelper.startPage(pageNum, pageSize);
         List<Goods> list = goodsMapper.selectAll(goods);
@@ -154,4 +145,41 @@ public class GoodsService {
         return goods;
     }
 
+
+    private GoodsDTO wrapGoods(GoodsDTO goods) {
+        if (goods == null) {
+            return null;
+        }
+        BigDecimal actualPrice = goods.getPrice().multiply(BigDecimal.valueOf(goods.getDiscount())).setScale(2, RoundingMode.UP);
+        goods.setActualPrice(actualPrice);
+        int saleCount = 0;
+        List<OrdersItem> ordersItemList = ordersItemService.selectByGoodsId(goods.getId());
+        List<OrdersItem> usageOrdersItemList = new ArrayList<>();
+        for (OrdersItem ordersItem : ordersItemList) {
+            // 筛选出有效订单的商品销售额
+            Integer orderId = ordersItem.getOrderId();
+            Orders orders = ordersService.selectById(orderId);
+            if (orders == null) {
+                continue;
+            }
+            if (OrderStatusEnum.NO_COMMENT.getValue().equals(orders.getStatus()) || OrderStatusEnum.DONE.getValue().equals(orders.getStatus())) {
+                usageOrdersItemList.add(ordersItem);
+            }
+        }
+        // 聚合函数查出订单的商品数量
+        saleCount += usageOrdersItemList.stream().map(OrdersItem::getNum).reduce(Integer::sum).orElse(0);
+        goods.setSaleCount(saleCount);
+        return goods;
+    }
+
+
+    public PageInfo<GoodsDTO> selectAllExceptStatus(GoodsDTO goodsDTO,Integer pageNum, Integer pageSize) {
+        // 拿到当前的登录用户信息;
+        PageHelper.startPage(pageNum, pageSize);
+        List<GoodsDTO> list = goodsMapper.selectAllExceptStatus(goodsDTO);
+        for (GoodsDTO g : list) {
+            wrapGoods(g);
+        }
+        return PageInfo.of(list);
+    }
 }

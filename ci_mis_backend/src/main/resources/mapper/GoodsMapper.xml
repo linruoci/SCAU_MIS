@@ -10,16 +10,13 @@
 
     <select id="selectAll" resultType="com.ruoci.mis.entity.Goods">
         select
-        goods.*, business.name as businessName, category.name as categoryName
+        goods.*,  category.name as categoryName
         from goods
-        left join business
-        on goods.business_id = business.id
         left join category
         on goods.category_id = category.id
         <where>
             <if test="id != null"> and goods.id = #{id}</if>
             <if test="name != null"> and goods.name like concat('%', #{name}, '%')</if>
-            <if test="businessId != null"> and goods.business_id = #{businessId}</if>
             <if test="categoryId != null"> and goods.category_id = #{categoryId}</if>
         </where>
         order by id desc
@@ -30,6 +27,20 @@
         <include refid="Base_Column_List" />
         from goods
         where id = #{id}
+    </select>
+    <select id="selectAllExceptStatus" resultType="com.ruoci.mis.entity.GoodsDTO">
+        select
+        goods.*,  category.name as categoryName
+        from goods
+        left join category
+        on goods.category_id = category.id
+        <where>
+            <if test="id != null"> and goods.id = #{id}</if>
+            <if test="name != null"> and goods.name like concat('%', #{name}, '%')</if>
+            <if test="categoryId != null"> and goods.category_id = #{categoryId}</if>
+            and goods.status = '上架'
+        </where>
+        order by id desc
     </select>
 
     <delete id="deleteById">
@@ -51,7 +62,6 @@
             <if test="date != null">date,</if>
             <if test="status != null">status,</if>
             <if test="discount != null">discount,</if>
-            <if test="businessId != null">business_id,</if>
             <if test="categoryId != null">category_id,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -66,7 +76,6 @@
             <if test="date != null">#{date},</if>
             <if test="status != null">#{status},</if>
             <if test="discount != null">#{discount},</if>
-            <if test="businessId != null">#{businessId},</if>
             <if test="categoryId != null">#{categoryId},</if>
         </trim>
     </insert>
