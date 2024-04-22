@@ -5,7 +5,7 @@
 <mapper namespace="com.ruoci.mis.mapper.CategoryMapper">
 
     <sql id="Base_Column_List">
-        id,name,business_id
+        id,name
     </sql>
 
     <select id="selectAll" resultType="com.ruoci.mis.entity.Category">

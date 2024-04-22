@@ -209,4 +209,30 @@ public class Orders implements Serializable {
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
+    @Override
+    public String toString() {
+        return "Orders{" +
+                "id=" + id +
+                ", orderNo='" + orderNo + '\'' +
+                ", time='" + time + '\'' +
+                ", payTime='" + payTime + '\'' +
+                ", payType='" + payType + '\'' +
+                ", status='" + status + '\'' +
+                ", businessId=" + businessId +
+                ", user='" + user + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", userId=" + userId +
+                ", amount=" + amount +
+                ", discount=" + discount +
+                ", actual=" + actual +
+                ", comment='" + comment + '\'' +
+                ", cover='" + cover + '\'' +
+                ", name='" + name + '\'' +
+                ", businessName='" + businessName + '\'' +
+                ", userName='" + userName + '\'' +
+                ", orderType='" + orderType + '\'' +
+                '}';
+    }
 }

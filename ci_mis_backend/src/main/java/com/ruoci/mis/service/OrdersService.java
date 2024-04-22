@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,6 +38,13 @@ public class OrdersService {
 
     @Resource
     private OrdersItemService ordersItemService;
+
+    @Resource
+    private GoodsService goodsService;
+
+
+    @Resource
+    private AdminService adminService;
 
     /**
      * 新增
@@ -169,7 +178,75 @@ public class OrdersService {
         cartService.deleteByBusiness(businessId, userId);
     }
 
+
+
+
     public List<Orders> selectUsageByBusinessId(Integer businessId) {
         return ordersMapper.selectUsageByBusinessId(businessId);
+    }
+
+    public OrdersVo addMyOrder(List<MyOrdersDTO> ordersList) {
+
+        OrdersVo ordersVo = new OrdersVo();
+        Account currentUser = TokenUtils.getCurrentUser();
+        Integer userId = currentUser.getId();
+        Admin user = adminService.selectById(userId);
+        BigDecimal amount = new BigDecimal(0);
+        BigDecimal actual = new BigDecimal(0);
+        List<Goods> goodList = new ArrayList<>();
+        int sum = 0;
+        for (MyOrdersDTO ordersDTO : ordersList){
+            Goods goods = goodsService.selectById(ordersDTO.getGoodsId());
+            goodList.add(goods);
+            BigDecimal price = goods.getPrice();
+            BigDecimal actualPrice = goods.getActualPrice();
+            sum += ordersDTO.getNums();
+            amount = amount.add(price.multiply(BigDecimal.valueOf(ordersDTO.getNums())));  // 原价
+            actual = actual.add(actualPrice.multiply(BigDecimal.valueOf(ordersDTO.getNums())));  // 打折之后的价格
+
+        }
+        Orders orders = new Orders();
+        String now = DateUtil.now();
+        orders.setTime(now);
+        orders.setPayType("支付宝");
+        orders.setUserId(userId);
+        orders.setAddress("南京西路1229号");
+        orders.setPhone(user.getPhone());
+        orders.setUser(currentUser.getName());
+        orders.setAmount(amount);
+        orders.setDiscount(amount.subtract(actual));
+        orders.setActual(actual);
+        orders.setName(goodList.get(0).getName() + "等" + sum + "件商品");
+        orders.setCover(goodList.get(0).getImg());
+
+        // 最后设置一个订单编号
+        orders.setOrderNo(IdUtil.getSnowflakeNextIdStr());  // 雪花算法生成唯一的ID作为订单号
+        // 设置订单状态
+        orders.setStatus(OrderStatusEnum.NO_PAY.getValue());
+        this.add(orders);
+        int i = 0;
+
+        // 再设置订单的 详细信息
+        for (Goods goods : goodList) {
+            OrdersItem ordersItem = new OrdersItem();
+            ordersItem.setOrderId(orders.getId());
+            ordersItem.setGoodsName(goods.getName());
+            ordersItem.setGoodsImg(goods.getImg());
+            ordersItem.setPrice(goods.getActualPrice());
+            ordersItem.setNum(ordersList.get(i++).getNums());
+            ordersItem.setGoodsId(goods.getId());
+            ordersItemService.add(ordersItem);
+        }
+
+
+        ordersVo.setOrderNo(orders.getOrderNo());
+        ordersVo.setTotalPrice(actual);
+        ordersVo.setGoodsName(goodList.get(0).getName() + "等" + sum + "件商品");
+        return ordersVo;
+
+    }
+
+    public Orders selectByOrderNo(String orderNo) {
+        return ordersMapper.selectByNo(orderNo);
     }
 }

@@ -37,4 +37,7 @@ public interface OrdersMapper {
 
     @Select("select * from orders where business_id = #{businessId} and (status = '待评价' or status = '已完成')")
     List<Orders> selectUsageByBusinessId(Integer businessId);
+
+    @Select("select * from orders where order_no = #{orderNo}")
+    Orders selectByNo(String orderNo);
 }

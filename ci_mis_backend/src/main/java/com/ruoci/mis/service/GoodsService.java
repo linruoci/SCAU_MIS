@@ -40,9 +40,6 @@ public class GoodsService {
     public void add(Goods goods) {
         //查询分类的数据
         Category category = categoryService.selectById(goods.getCategoryId());
-        if (ObjectUtil.isNotEmpty(category)) {
-            goods.setBusinessId(category.getBusinessId());
-        }
         goodsMapper.insert(goods);
     }
 
