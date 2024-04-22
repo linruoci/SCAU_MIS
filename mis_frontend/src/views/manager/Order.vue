@@ -69,7 +69,7 @@
           <div style="flex:1">
             <p>总金额: {{ totalAmount }}</p>
           </div>
-          <el-button type= "primary" @click="removeTable()">结算</el-button>
+          <el-button type= "primary" @click="payMyGoods()">结算</el-button>
         </div>
       </div>
 
@@ -107,6 +107,7 @@ export default {
         ]
       },
       ids: [],
+      goods: [],
       num: 0,
     }
   },
@@ -119,6 +120,9 @@ export default {
         total += item.price * num * item.discount;
       }
       return total.toFixed(1); // 保留一位小数
+    },
+    selectedGoods() {
+      return this.tableData.filter(good => good.num > 0);
     }
   },
   methods: {
@@ -139,6 +143,18 @@ export default {
         } else {
           this.$alert(res.msg);
         }
+      })
+    },
+    payMyGoods(){
+      const orderData = this.selectedGoods.map(good => {
+        return {
+          goodsId: good.id,
+          nums: good.num
+        };
+      });
+      this.$request.post('/orders/addMyOrder', orderData).then(res => {
+        alert("订单提交成功!");
+        window.open('http://localhost:8080/orders')
       })
     },
     handleAdd() {   // 新增数据
@@ -183,6 +199,8 @@ export default {
     },
     handleSelectionChange(rows) {   // 当前选中的所有的行数据
       this.ids = rows.map(v => v.id)
+      this.goods = rows
+      console.log(this.goods)
     },
     delBatch() {   // 批量删除
       if (!this.ids.length) {
